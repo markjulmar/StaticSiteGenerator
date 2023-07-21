@@ -1,0 +1,158 @@
+﻿<Window x:Class="SGLMonitor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:extensions="clr-namespace:SGLMonitor.Extensions"
+        xmlns:viewModels="clr-namespace:SGLMonitor.ViewModels"
+        xmlns:converter="clr-namespace:SGLMonitor.Converter"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:mdpgenServices="clr-namespace:MDPGen.Core.Services;assembly=MDPGen.Core"
+        mc:Ignorable="d" 
+        FontFamily="Segoe UI Light" 
+        Background="#f0f0f0f0"
+        d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
+        Title="{Binding AppTitle, Mode=OneTime}" Height="600" Width="1024" WindowState="Maximized">
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding LoadSiteInfo}" Key="B" Modifiers="Ctrl+Shift"/>
+    </Window.InputBindings>
+    <Window.Resources>
+        <!-- Allow for binding an TraceType enum to an ItemSource. -->
+        <ObjectDataProvider MethodName="GetValues"
+            ObjectType="{x:Type sys:Enum}"
+            x:Key="TraceTypes">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="mdpgenServices:TraceType" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <BooleanToVisibilityConverter x:Key="bool2VisConverter"/>
+    </Window.Resources>
+    <Grid>
+        <Grid.Resources>
+            <HierarchicalDataTemplate DataType="{x:Type viewModels:MarkdownFileViewModel}"
+                        ItemsSource="{Binding Children}">
+                <TextBlock Text="{Binding Name}" ToolTip="{Binding Node.Url}" />
+            </HierarchicalDataTemplate>
+        </Grid.Resources>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width=".25*" />
+            <ColumnDefinition Width="3" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <GridSplitter Grid.Row="0" Grid.Column="1" 
+                      Width="3"
+                      ResizeDirection="Columns"
+                      ResizeBehavior="PreviousAndNext"
+                      VerticalAlignment="Stretch"/>
+
+        <Grid Grid.Column="0" Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Label Foreground="DarkBlue" Margin="5" Grid.Row="0" Grid.Column="0" Content="Site Configuration"  VerticalAlignment="Center"/>
+            <TextBox Grid.Row="0" Grid.Column="1" Margin="5" Text="{Binding SiteConfigFile, Mode=TwoWay}" Padding="5" />
+            <Button Content="..." MinWidth="30" Grid.Row="0" Grid.Column="2" VerticalContentAlignment="Center" Margin="5" Click="OnChooseSiteConfigFile" />
+
+            <Label Foreground="DarkBlue" Margin="5" Grid.Row="1" Grid.Column="0" Content="Dest Folder"  VerticalAlignment="Center"/>
+            <TextBox Grid.Row="1" Grid.Column="1" Margin="5" Text="{Binding DestinationFolder, Mode=TwoWay}" Padding="5" />
+            <Button Content="..." MinWidth="30" Grid.Row="1" Grid.Column="2" VerticalContentAlignment="Center" Margin="5" Click="OnChooseOutputFolder" />
+
+            <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3">
+                <Grid Margin="10,5">
+                    <Button Content="Build Site" Padding="10,5" Command="{Binding LoadSiteInfo}"/>
+                    <Button Content="Cancel Build" Padding="10,5" Command="{Binding CancelBuild}" Visibility="{Binding IsRunningBuild, Converter={StaticResource bool2VisConverter}}" />
+                </Grid>
+
+                <ProgressBar Maximum="{Binding MaxProgress}" Value="{Binding CurrentProgress, Mode=OneWay}" Height="20" Margin="5" />
+            </StackPanel>
+
+            <TreeView x:Name="treeView"  Grid.Row="3" Grid.Column="0"
+                     Grid.ColumnSpan="3" Margin="5" ItemsSource="{Binding Files}">
+                <TreeView.Resources>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{StaticResource Color_024}" />
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="White" />
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{StaticResource Color_024}" />
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White" />
+                </TreeView.Resources>
+                <TreeView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel Background="White" />
+                    </ItemsPanelTemplate>
+                </TreeView.ItemsPanel>
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+                        <Setter Property="IsExpanded" Value="True" />
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                        <Setter Property="ContextMenu">
+                            <Setter.Value>
+                                <ContextMenu>
+                                    <MenuItem Header="_Open In Browser" Command="{Binding OpenUrl}"/>
+                                    <MenuItem Header="_Edit Markdown File" Command="{Binding Edit}" />
+                                </ContextMenu>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TreeView.ItemContainerStyle>
+            </TreeView>
+
+            <GridSplitter Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" 
+                          ResizeBehavior="PreviousAndNext"
+                          HorizontalAlignment="Stretch"
+                          ResizeDirection="Rows" Height="3" />
+
+            <DockPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" >
+                <ComboBox Margin="5,5,5,0" SelectedValue="{Binding Path=OutputFilter, Mode=TwoWay}" 
+                        DockPanel.Dock="Top"
+                        ItemsSource="{Binding Source={StaticResource TraceTypes}}"/>
+
+                <ListBox x:Name="LogList" Margin="5" 
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         ItemsSource="{Binding Status}">
+                    <ListBox.CommandBindings>
+                        <CommandBinding Command="ApplicationCommands.Copy"
+                                CanExecute="CopyToClipboardCanExecute" Executed="CopyToClipboardExecuted" />
+                    </ListBox.CommandBindings>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={converter:LogLineConverter}}" 
+                                    TextWrapping="Wrap"
+                                    Foreground="{Binding Converter={converter:LogLineBrushConverter}}" 
+                                    ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Text}">
+                                <TextBlock.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Command="Copy">
+                                            <MenuItem.CommandBindings>
+                                                <CommandBinding Command="ApplicationCommands.Copy" 
+                                                            CanExecute="CopyToClipboardCanExecute"
+                                                            Executed="ContextCopyToClipboardExecuted" />
+                                            </MenuItem.CommandBindings>
+                                        </MenuItem>
+                                    </ContextMenu>
+                                </TextBlock.ContextMenu>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Grid>
+
+        <DockPanel Grid.Column="2" Grid.Row="0">
+            <TextBox Margin="10" Padding="5" IsReadOnly="True" Text="{Binding Url}" DockPanel.Dock="Top" />
+            <WebBrowser x:Name="webBrowser" extensions:WebBrowserExtensions.UriSource="{Binding Url}" />
+        </DockPanel>
+
+    </Grid>
+</Window>

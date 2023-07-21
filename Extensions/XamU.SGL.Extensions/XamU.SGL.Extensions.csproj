@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5ACFDF45-F079-4C7B-A916-ACDFD8D76A7E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>XamU.SGL.Extensions</RootNamespace>
+    <AssemblyName>XamU.SGL.Extensions</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="YamlDotNet, Version=4.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\YamlDotNet.4.2.1\lib\net35\YamlDotNet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Blocks\WriteLabPage.cs" />
+    <Compile Include="Blocks\CombineLabPages.cs" />
+    <Compile Include="Blocks\IdentifyLabPages.cs" />
+    <Compile Include="CourseDocumentMetadata.cs" />
+    <Compile Include="CourseExtensions.cs" />
+    <Compile Include="HeaderLink.cs" />
+    <Compile Include="MarkdownDeep\Abbreviation.cs" />
+    <Compile Include="MarkdownDeep\Block.cs" />
+    <Compile Include="MarkdownDeep\BlockProcessor.cs" />
+    <Compile Include="MarkdownDeep\FootnoteReference.cs" />
+    <Compile Include="MarkdownDeep\HtmlTag.cs" />
+    <Compile Include="MarkdownDeep\LinkDefinition.cs" />
+    <Compile Include="MarkdownDeep\LinkInfo.cs" />
+    <Compile Include="MarkdownDeep\MarkdownDeep.cs" />
+    <Compile Include="MarkdownDeep\SpanFormatter.cs" />
+    <Compile Include="MarkdownDeep\SpecialAttribute.cs" />
+    <Compile Include="MarkdownDeep\StringScanner.cs" />
+    <Compile Include="MarkdownDeep\TableSpec.cs" />
+    <Compile Include="MarkdownDeep\Token.cs" />
+    <Compile Include="MarkdownDeep\Utils.cs" />
+    <Compile Include="XamUMarkdownParser.cs" />
+    <Compile Include="TopicListTreeExtension.cs" />
+    <Compile Include="XamUPageMetadataLoader.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\MDPGen.Core\MDPGen.Core.csproj">
+      <Project>{4d80f6fc-c9e8-446c-9cec-56ab8bc4f7d1}</Project>
+      <Name>MDPGen.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /Y "$(TargetPath)" "$(SolutionDir)\SGLMonitor\bin\$(ConfigurationName)\"
+xcopy /Y "$(TargetPath)" "$(SolutionDir)\MDPGen\bin\$(ConfigurationName)\"</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
